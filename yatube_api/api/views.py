@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters
@@ -11,12 +12,14 @@ from api.viewsets import ListCreateViewSet
 from api.permissions import IsOwnerOrReadOnly
 from api.serializers import (
     CommentSerializer,
+    FollowSerializer,
     GroupSerializer,
     PostSerializer,
-    UserSerializer,
-    FollowSerializer
+    UserSerializer
 )
-from posts.models import Group, Post, User
+from posts.models import Group, Post
+
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -69,7 +72,7 @@ class FollowViewSet(ListCreateViewSet):
     serializer_class = FollowSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('following__username',)
+    search_fields = ['=following__username',]
 
     def get_queryset(self):
         return self.request.user.follower.all()
